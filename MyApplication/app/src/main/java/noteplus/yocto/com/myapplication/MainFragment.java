@@ -20,8 +20,10 @@ import noteplus.yocto.com.myapplication.model.NoteViewModel;
 import noteplus.yocto.com.myapplication.model.NoteplusRoomDatabase;
 
 public class MainFragment extends Fragment {
+
+    private static final boolean REPRODUCE_BUG = true;
+
     private NoteViewModel noteViewModel;
-    private int count = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -49,14 +51,18 @@ public class MainFragment extends Fragment {
             }
         });
 
-        noteViewModel.getTrashedNotesLiveData().removeObservers(this);
-        noteViewModel.getNotesLiveData().observe(this, new Observer<List<Note>>() {
-            @Override
-            public void onChanged(@Nullable List<Note> notes) {
-                count++;
-                textView.setText("MainFragment onChanged called " + count + " times with list size " + notes.size());
-            }
-        });
+        if (REPRODUCE_BUG) {
+            textView.setText("REPRODUCE_BUG: on");
+        } else {
+            textView.setText("REPRODUCE_BUG: off");
+
+            // existence of this subscription changes the behavior in TrashFragment
+            noteViewModel.getTrashedNotesLiveData().observe(this, new Observer<List<Note>>() {
+                @Override
+                public void onChanged(@Nullable List<Note> notes) {
+                }
+            });
+        }
 
         return view;
     }
